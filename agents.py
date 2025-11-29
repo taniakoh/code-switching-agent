@@ -8,7 +8,7 @@ from node_engine import (
     SummarizeResult,
     RunFluencyAgent,
     RunNaturalnessAgent,
-    RunCSRatioAgent,
+    # RunCSRatioAgent,
     RunSocialCulturalAgent,
     RunRefinerAgent,
     AcceptanceAgent,
@@ -51,7 +51,7 @@ class CodeSwitchingAgent:
         workflow.add_node("TranslationAdequacyAgent", RunAccuracyAgent)
         workflow.add_node("FluencyAgent", RunFluencyAgent)
         workflow.add_node("NaturalnessAgent", RunNaturalnessAgent)
-        workflow.add_node("CSRatioAgent", RunCSRatioAgent)
+        # workflow.add_node("CSRatioAgent", RunCSRatioAgent)
         workflow.add_node("SocialCulturalAgent", RunSocialCulturalAgent)
         workflow.add_node("SummarizeResult", SummarizeResult)
         workflow.add_node("RefinerAgent", RunRefinerAgent)
@@ -62,10 +62,10 @@ class CodeSwitchingAgent:
         workflow.add_edge("DataTranslationAgent", "TranslationAdequacyAgent")
         workflow.add_edge("DataTranslationAgent", "FluencyAgent")
         workflow.add_edge("DataTranslationAgent", "NaturalnessAgent")
-        workflow.add_edge("DataTranslationAgent", "CSRatioAgent")
+        # workflow.add_edge("DataTranslationAgent", "CSRatioAgent")
         workflow.add_edge("DataTranslationAgent", "SocialCulturalAgent")
         workflow.add_edge(
-            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent", "CSRatioAgent", "SocialCulturalAgent"],
+            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent", "SocialCulturalAgent"],
             "SummarizeResult",
         )
         workflow.add_conditional_edges("SummarizeResult", meet_criteria)
@@ -101,23 +101,23 @@ async def main(config):
 
     # make a for loop, each loop run 10 scenarios
     results_count = 0
-    for i in range(0, 8000, 40):
-        tasks = [arun(scenario) for scenario in scenarios[i : i + 40]]
+    #for i in range(0, 1, 40): #og 0, 8000, 40
+    tasks = [arun(scenario) for scenario in scenarios[0 : 4]]
 
-        # 使用 asyncio.as_completed 來逐個等待任務完成
-        try:
-            for task in asyncio.as_completed(tasks, timeout=7200):
-                result = await task
-                results_count += 1
-        except asyncio.TimeoutError:
-            logger.warning(f"⏱️ Scenario timed out after 2400 seconds: {i}")
-            print(f"🔍 Scenario timed out after 2400 seconds: {i}")
-            continue
-        finally:
-            # log the number of results finished
-            if results_count % 10 == 0:
-                logger.info(f"🔍 Number of results finished: {results_count}")
-                print(f"🔍 Number of results finished: {results_count}")
+    # 使用 asyncio.as_completed 來逐個等待任務完成
+    try:
+        for task in asyncio.as_completed(tasks, timeout=7200):
+            result = await task
+            print(result)
+            results_count += 1
+    except asyncio.TimeoutError:
+        logger.warning(f"⏱️ Scenario timed out after 2400 seconds: {i}")
+        print(f"🔍 Scenario timed out after 2400 seconds: {i}")
+    finally:
+        # log the number of results finished
+        if results_count % 10 == 0:
+            logger.info(f"🔍 Number of results finished: {results_count}")
+            print(f"🔍 Number of results finished: {results_count}")
     return results_count
 
 if __name__ == "__main__":

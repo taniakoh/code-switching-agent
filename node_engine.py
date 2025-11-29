@@ -8,7 +8,7 @@ from prompt import (
     FLUENCY_PROMPT,
     ACCURACY_PROMPT,
     NATURALNESS_PROMPT,
-    CS_RATIO_PROMPT,
+    # CS_RATIO_PROMPT,
     SOCIAL_CULTURAL_PROMPT,
     REFINER_PROMPT,
 )
@@ -18,7 +18,7 @@ from node_models import (
     AccuracyResponse,
     FluencyResponse,
     NaturalnessResponse,
-    CSRatioResponse,
+    # CSRatioResponse,
     SocialCulturalResponse,
 )
 from utils import weighting_scheme
@@ -42,21 +42,23 @@ def RunDataTranslationAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(TranslationResponse)
     response = DataTranslationAgent.invoke(state)
-    retry = 4
-    if not response.get("hypo"):
-        while retry > 0:
-            response = DataTranslationAgent.invoke(state)
-            if response.get("hypo"):
-                break
-            retry -= 1
-    return {"data_generation_result": response["hypo"]}
+    # retry = 4
+    # if not response.get():
+    #     while retry > 0:
+    #         response = DataTranslationAgent.invoke(state)
+    #         if response.get():
+    #             break
+    #         retry -= 1
+    print(response)
+    state["translated_sentence"] = response
+    return {"data_translation_result": response}
 
 def RunAccuracyAgent(state: AgentRunningState):
     AccuracyAgent = ACCURACY_PROMPT | ChatOpenAI(
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(AccuracyResponse)
     response = AccuracyAgent.invoke(state)
-
+    print(response)
     return {"accuracy_result": response}
 
 
@@ -65,7 +67,7 @@ def RunFluencyAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(FluencyResponse)
     response = FluencyAgent.invoke(state)
-
+    print(response)
     return {"fluency_result": response}
 
 
@@ -74,17 +76,17 @@ def RunNaturalnessAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(NaturalnessResponse)
     response = NaturalnessAgent.invoke(state)
-
+    print(response)
     return {"naturalness_result": response}
 
 
-def RunCSRatioAgent(state: AgentRunningState):
-    CSRatioAgent = CS_RATIO_PROMPT | ChatOpenAI(
-        model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
-    ).with_structured_output(CSRatioResponse)
-    response = CSRatioAgent.invoke(state)
-
-    return {"cs_ratio_result": response}
+# def RunCSRatioAgent(state: AgentRunningState):
+#     CSRatioAgent = CS_RATIO_PROMPT | ChatOpenAI(
+#         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
+#     ).with_structured_output(CSRatioResponse)
+#     response = CSRatioAgent.invoke(state)
+#     print(response)
+#     return {"cs_ratio_result": response}
 
 
 def RunSocialCulturalAgent(state: AgentRunningState):
@@ -92,15 +94,16 @@ def RunSocialCulturalAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(SocialCulturalResponse)
     response = SocialCulturalAgent.invoke(state)
+    print(response)
     return {"social_cultural_result": response}
 
 
 def SummarizeResult(state: AgentRunningState):
     summary = f"""
-    data_generation_result: {state["data_generation_result"]}
+    data_translation_result: {state["data_translation_result"]}
+    Adequacy Result: {state["accuracy_result"]}
     Fluency Result: {state["fluency_result"]}
     Naturalness Result: {state["naturalness_result"]}
-    CSRatio Result: {state["cs_ratio_result"]}
     """
     state["summary"] = summary
     # print(summary)
@@ -125,7 +128,8 @@ def RunRefinerAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(TranslationResponse)
     response = RefinerAgent.invoke(state)
-
+    state["translated_sentence"] = response
+    print(f'refiner agent called: {response}')
     return {"refiner_result": response, "refine_count": 1}
 
 # def RunMCPAgent(state: AgentRunningState) -> Dict[str, Any]:
