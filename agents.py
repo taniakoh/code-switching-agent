@@ -9,7 +9,7 @@ from node_engine import (
     RunFluencyAgent,
     RunNaturalnessAgent,
     # RunCSRatioAgent,
-    RunSocialCulturalAgent,
+    #RunSocialCulturalAgent,
     RunRefinerAgent,
     AcceptanceAgent,
 )
@@ -52,7 +52,7 @@ class CodeSwitchingAgent:
         workflow.add_node("FluencyAgent", RunFluencyAgent)
         workflow.add_node("NaturalnessAgent", RunNaturalnessAgent)
         # workflow.add_node("CSRatioAgent", RunCSRatioAgent)
-        workflow.add_node("SocialCulturalAgent", RunSocialCulturalAgent)
+        #workflow.add_node("SocialCulturalAgent", RunSocialCulturalAgent)
         workflow.add_node("SummarizeResult", SummarizeResult)
         workflow.add_node("RefinerAgent", RunRefinerAgent)
         workflow.add_node("AcceptanceAgent", AcceptanceAgent)
@@ -63,9 +63,9 @@ class CodeSwitchingAgent:
         workflow.add_edge("DataTranslationAgent", "FluencyAgent")
         workflow.add_edge("DataTranslationAgent", "NaturalnessAgent")
         # workflow.add_edge("DataTranslationAgent", "CSRatioAgent")
-        workflow.add_edge("DataTranslationAgent", "SocialCulturalAgent")
+        #workflow.add_edge("DataTranslationAgent", "SocialCulturalAgent")
         workflow.add_edge(
-            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent", "SocialCulturalAgent"],
+            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent"],
             "SummarizeResult",
         )
         workflow.add_conditional_edges("SummarizeResult", meet_criteria)
@@ -102,7 +102,7 @@ async def main(config):
     # make a for loop, each loop run 10 scenarios
     results_count = 0
     #for i in range(0, 1, 40): #og 0, 8000, 40
-    tasks = [arun(scenario) for scenario in scenarios[0 : 4]]
+    tasks = [arun(scenario) for scenario in scenarios[10 : 15]]
 
     # 使用 asyncio.as_completed 來逐個等待任務完成
     try:

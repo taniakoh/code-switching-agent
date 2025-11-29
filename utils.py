@@ -39,8 +39,8 @@ def weighting_scheme(state):
     fluency = state["fluency_result"]["fluency_score"]
     naturalness = state["naturalness_result"]["naturalness_score"]
     # csratio = state["cs_ratio_result"]["ratio_score"]
-    socio = state["social_cultural_result"]["socio_cultural_score"]
-    return accuracy*0.4 + fluency * 0.3 + naturalness * 0.2 + socio * 0.1
+    #socio = state["social_cultural_result"]["socio_cultural_score"]
+    return accuracy*0.3 + fluency * 0.4 + naturalness * 0.3
 
 
 if __name__ == "__main__":

@@ -14,52 +14,51 @@ DATA_TRANSLATION_PROMPT = ChatPromptTemplate.from_messages(
             """
             You are a multilingual translation agent. You will be given an {first_language} sentence. Your task is to rewrite it by code-switching by translating words into {second_language}.
             Input: {hypothesis}
-            Follow these guidelines:
 
+            
+            Follow these guidelines:
 
             1. Language Roles:
             - The Matrix Language (dominant language) is {first_language}. 
             - The Embedded Language (secondary language) is {second_language}.
 
-            2. Code-Switching Type:
-                Intrasentential: Switch languages within a single sentence.
-              - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
+            2. Intrasentential Code-Switching :
+              - Switch languages within a single sentence.
               - Commonly used when a certain term or phrase is better expressed in the second language, or to add emphasis (expressive function).
               - Within a single sentence, embed a short phrase or clause in {second_language} (e.g., for an object, an adjective, or a common expression).
               - Remember to maintain grammatical coherence; e.g., do not place a determiner in a position that violates the word order rules of the main language.
-              - This can be in the form of insertional code-switching:incorporation of specific lexical elements into a matrix language such as single words or short phrases
+              - This can be in the form of insertional code-switching: incorporation of specific lexical elements into a matrix language such as single words or short phrases
+              - **Focus on switching adjectives and/or nouns**
                 Examples: Chinese to English,“我老是去那家 coffee shop，因为那里真的很 peaceful，而且vibe也不错。”(Chinese sentence about the son, then an English statement.)
                 Examples: English to Spanish, Original Sentence: "The student read the book in the reference room.", New Sentence:El estudiante leyó el libro en el reference room.
                 Examples: English to Spanish, Original Sentence: "I met up with my buddies at the party.", New Sentence: "I met up with my compadres at the fiesta."
             - This can also be in the form of more syntactically complex alternational codeswitches at grammatical clause boundaries 
-                Examples: English to Portuguese,“I don’t know o meu lugar nesse mundo.”(Partial phrase in Portuguese: “my place in this world.”)
-                Examples: English to Spanish, Original Sentence: "Code-switching among bilinguals has been the source of numerous studies.", New Sentence: "Code-switching among bilinguals ha sido la fuente de numerosas investigaciones."
                 Examples: English to Spanish, Original Sentence: "But my printer doesn’t work.", New Sentence: "Pero mi printer no funciona."
                 Examples: English to Spanish, Original Sentence: "You can’t do it because you can’t check it.", New Sentence: "No la puedes hacer because you can’t check it."
              
-            
+            3. Utilise Lexical Substitution
+            - If a direct translation of the verb creates unnatural grammar, try changing the word choice to a similar word or switch the whole verb phrase.
 
-            3. Ensure your output follows these constraints:
-            - There are no additional words compared to the {hypothesis}.
+            4. Ensure your output follows these constraints:
+            - Do not add any additional words to the original {hypothesis}.
+            - - Pronouns (subject/object), determiners, articles, and any other system morphemes MUST NOT appear in the Embedded Language unless the ENTIRE clause or phrase containing them is also switched into the Embedded Language.
+            - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
             - The syntax remains correct in both languages. (Observe free morpheme constraint & equivalence constraint.)
             - Make it sound natural to bilingual speakers (avoid unnatural mixing).
-            - System Morphemes (grammar words like pronouns, determiners, tense markers) must come from the Matrix Language and cannot be switched in isolation.
             - The order of words must follow the Matrix Language rules.
-            - Respect socio-cultural norms (correct borrowed words, e.g., Chinese might use '士多啤梨' instead of '草莓').
             - The final sentence must mean EXACTLY the same thing as the input sentence.
 
-            4. Output must be the generated code-switched sentencein string format
+            5. Output must be the generated code-switched sentence in string format
     
            Think carefully and produce your code-switched text.
             
             ### INTERNAL (do NOT reveal):
-            1. Parse the {first_language} sentence into a dependency tree.
+            1. Parse the {first_language} sentence input: {hypothesis} into a dependency tree.
             2. Translate it into {second_language}.
             3. Align tokens between the two sentences.
             4. Locate all switchable spans that satisfy the Equivalence
                 & Functional‑Head constraints; pick the best one.
             – Keep all intermediate notes private. 
-            The below is the reference of the code-switching usage:
             ### END INTERNAL
             """,
         )
@@ -73,7 +72,7 @@ ACCURACY_PROMPT = ChatPromptTemplate.from_messages(
             #https://themqm.org/the-mqm-typology/
             "assistant",
             """
-            You are **TranslationAdequacyAgent**. Your task is to evaluate the meaning preservation between an original and code-switched text. Specifically:
+            You are **TranslationAccuracyAgent**. Your task is to evaluate the meaning preservation between an original and code-switched text. Specifically:
             1. **Check for semantic errors** between the original, {hypothesis} and code-switched text, {data_translation_result}.
             - **Tense**: 
             - **Situation Type**:
@@ -176,28 +175,28 @@ CS_RATIO_PROMPT = ChatPromptTemplate.from_messages(
     ]
 )
 
-SOCIAL_CULTURAL_PROMPT = ChatPromptTemplate.from_messages(
-    [
-        (
-            "assistant",
-            """
-            You are **SocioCulturalAgent**. Your goal is to ensure that the code-switched text respects *cultural norms* and uses *correct borrowed words* or expressions.
+# SOCIAL_CULTURAL_PROMPT = ChatPromptTemplate.from_messages(
+#     [
+#         (
+#             "assistant",
+#             """
+#             You are **SocioCulturalAgent**. Your goal is to ensure that just the code-switched text in {second_language} respects *cultural norms* and uses *correct borrowed words* or expressions.
 
-            1. **Check culture-specific vocabulary**:
-            - For Cantonese: "士多啤梨" instead of "草莓" for "strawberry," etc.
-            - For Spanish: Keep "taco" in Spanish, do not forcibly translate.
-            - Avoid offensive or extremely unnatural usage in local contexts.
+#             1. **Check culture-specific vocabulary**:
+#             - For Cantonese: "士多啤梨" instead of "草莓" for "strawberry," etc.
+#             - For Spanish: Keep "taco" in Spanish, do not forcibly translate.
+#             - Avoid offensive or extremely unnatural usage in local contexts.
 
-            2. **Output**:
-            - A `socio_cultural_score` (0 to 10).
-            - An array of `issues` if you find any unfit usage:
-                - `description`
-            - A short `summary` with your overall assessment.
-            given the code-switched text {data_translation_result}.
-            """,
-        )
-    ]
-)
+#             2. **Output**:
+#             - A `socio_cultural_score` (0 to 10).
+#             - An array of `issues` if you find any unfit usage:
+#                 - `description`
+#             - A short `summary` with your overall assessment.
+#             given the code-switched text {data_translation_result}.
+#             """,
+#         )
+#     ]
+# )
 
 
 REFINER_PROMPT = ChatPromptTemplate.from_messages(
@@ -205,7 +204,7 @@ REFINER_PROMPT = ChatPromptTemplate.from_messages(
         (
             "assistant",
             """
-            You are **RefinerAgent**. Your task is to refine the code-switched text based on the comments from TranslationAdequacyAgent, FluencyAgent, NaturalnessAgent, and SocioCulturalAgent, while
+            You are **RefinerAgent**. Your task is to refine the code-switched text based on the comments from TranslationAccuracyAgent, FluencyAgent, NaturalnessAgent, and SocioCulturalAgent, while
             maintaining the main purpose of producing a code-switched text:
             
             1. **Accuracy**:
@@ -217,58 +216,52 @@ REFINER_PROMPT = ChatPromptTemplate.from_messages(
             3. **Naturalness**:
             - Check if the sentence sounds like something real bilingual speakers would say.
 
-            4. **SocioCultural**:
-            - Check if the text respects cultural norms and uses correct borrowed words or expressions.
-
             Here are the comments : {summary}
             
 
             Follow these guidelines:
 
-
             1. Language Roles:
             - The Matrix Language (dominant language) is {first_language}. 
             - The Embedded Language (secondary language) is {second_language}.
 
-            2. Code-Switching Type:
-                Intrasentential: Switch languages within a single sentence.
-              - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
+            2. Intrasentential Code-Switching :
+              - Switch languages within a single sentence.
               - Commonly used when a certain term or phrase is better expressed in the second language, or to add emphasis (expressive function).
               - Within a single sentence, embed a short phrase or clause in {second_language} (e.g., for an object, an adjective, or a common expression).
               - Remember to maintain grammatical coherence; e.g., do not place a determiner in a position that violates the word order rules of the main language.
-              - This can be in the form of insertional code-switching:incorporation of specific lexical elements into a matrix language such as single words or short phrases
+              - This can be in the form of insertional code-switching: incorporation of specific lexical elements into a matrix language such as single words or short phrases
+              - **Focus on switching adjectives and/or nouns**
                 Examples: Chinese to English,“我老是去那家 coffee shop，因为那里真的很 peaceful，而且vibe也不错。”(Chinese sentence about the son, then an English statement.)
                 Examples: English to Spanish, Original Sentence: "The student read the book in the reference room.", New Sentence:El estudiante leyó el libro en el reference room.
                 Examples: English to Spanish, Original Sentence: "I met up with my buddies at the party.", New Sentence: "I met up with my compadres at the fiesta."
             - This can also be in the form of more syntactically complex alternational codeswitches at grammatical clause boundaries 
-                Examples: English to Portuguese,“I don’t know o meu lugar nesse mundo.”(Partial phrase in Portuguese: “my place in this world.”)
-                Examples: English to Spanish, Original Sentence: "Code-switching among bilinguals has been the source of numerous studies.", New Sentence: "Code-switching among bilinguals ha sido la fuente de numerosas investigaciones."
                 Examples: English to Spanish, Original Sentence: "But my printer doesn’t work.", New Sentence: "Pero mi printer no funciona."
                 Examples: English to Spanish, Original Sentence: "You can’t do it because you can’t check it.", New Sentence: "No la puedes hacer because you can’t check it."
              
-            
+            3. Must Utilise Lexical Substitution for Broken verb phrases
+            - If a direct translation of the verb creates unnatural grammar, try changing the word choice to a similar word or switch the whole verb phrase.
 
-            3. Ensure your output follows these constraints:
-            - There are no additional words compared to the {hypothesis}.
+            4. Ensure your output follows these constraints:
+            - Do not add any additional words to the original {hypothesis}.
+            - Object and Subject Pronouns(I, they, him, he etc.), determiners and articles MUST **NEVER** be in one language in ISOLATION.
+            - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
             - The syntax remains correct in both languages. (Observe free morpheme constraint & equivalence constraint.)
             - Make it sound natural to bilingual speakers (avoid unnatural mixing).
-            - System Morphemes (grammar words like pronouns, determiners, tense markers) must come from the Matrix Language.
             - The order of words must follow the Matrix Language rules.
-            - Respect socio-cultural norms (correct borrowed words, e.g., Chinese might use '士多啤梨' instead of '草莓').
             - The final sentence must mean EXACTLY the same thing as the input sentence.
 
-            4. Output must be the generated code-switched sentencein string format
+            5. Output must be the generated code-switched sentence in string format
     
-           Think carefully and refine the code-switched text.
+           Think carefully and produce your code-switched text using the comments and guidelines provided.
             
             ### INTERNAL (do NOT reveal):
-            1. Parse the {first_language} sentence into a dependency tree.
+            1. Parse the {first_language} sentence input: {hypothesis} into a dependency tree.
             2. Translate it into {second_language}.
             3. Align tokens between the two sentences.
             4. Locate all switchable spans that satisfy the Equivalence
                 & Functional‑Head constraints; pick the best one.
             – Keep all intermediate notes private. 
-           
             ### END INTERNAL
             """,
         )

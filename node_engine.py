@@ -9,7 +9,7 @@ from prompt import (
     ACCURACY_PROMPT,
     NATURALNESS_PROMPT,
     # CS_RATIO_PROMPT,
-    SOCIAL_CULTURAL_PROMPT,
+    #SOCIAL_CULTURAL_PROMPT,
     REFINER_PROMPT,
 )
 from node_models import (
@@ -19,7 +19,7 @@ from node_models import (
     FluencyResponse,
     NaturalnessResponse,
     # CSRatioResponse,
-    SocialCulturalResponse,
+    #SocialCulturalResponse,
 )
 from utils import weighting_scheme
 from copy import deepcopy
@@ -89,7 +89,7 @@ def RunNaturalnessAgent(state: AgentRunningState):
 #     return {"cs_ratio_result": response}
 
 
-def RunSocialCulturalAgent(state: AgentRunningState):
+#def RunSocialCulturalAgent(state: AgentRunningState):
     SocialCulturalAgent = SOCIAL_CULTURAL_PROMPT | ChatOpenAI(
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(SocialCulturalResponse)
@@ -101,7 +101,7 @@ def RunSocialCulturalAgent(state: AgentRunningState):
 def SummarizeResult(state: AgentRunningState):
     summary = f"""
     data_translation_result: {state["data_translation_result"]}
-    Adequacy Result: {state["accuracy_result"]}
+    Accuracy Result: {state["accuracy_result"]}
     Fluency Result: {state["fluency_result"]}
     Naturalness Result: {state["naturalness_result"]}
     """
@@ -118,6 +118,8 @@ def AcceptanceAgent(state: AgentRunningState):
     os.makedirs(OUTPUT_DIR, exist_ok=True) 
 
     with jsonlines.open(f"{OUTPUT_DIR}/{language}.jsonl", "a") as f:
+        f.write(state)
+    with jsonlines.open(f"{OUTPUT_DIR}/{language}_dataset.jsonl", "a") as f:
         f.write(state)
     return
 
