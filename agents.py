@@ -25,6 +25,7 @@ code_switch_lang='zh'
 logger.add(f"logs/code_switching_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 config: dict = load_config(f"./config/config_{code_switch_lang}.yaml")
 MAX_REFINER_ITERATIONS = 1
+entries=5
 
 
 def meet_criteria(state: AgentRunningState):
@@ -102,7 +103,7 @@ async def main(config):
     # make a for loop, each loop run 10 scenarios
     results_count = 0
     #for i in range(0, 1, 40): #og 0, 8000, 40
-    tasks = [arun(scenario) for scenario in scenarios[10 : 15]]
+    tasks = [arun(scenario) for scenario in scenarios[0:entries]]
 
     # 使用 asyncio.as_completed 來逐個等待任務完成
     try:

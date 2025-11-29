@@ -23,12 +23,10 @@ DATA_TRANSLATION_PROMPT = ChatPromptTemplate.from_messages(
             - The Embedded Language (secondary language) is {second_language}.
 
             2. Intrasentential Code-Switching :
-              - Switch languages within a single sentence.
-              - Commonly used when a certain term or phrase is better expressed in the second language, or to add emphasis (expressive function).
               - Within a single sentence, embed a short phrase or clause in {second_language} (e.g., for an object, an adjective, or a common expression).
               - Remember to maintain grammatical coherence; e.g., do not place a determiner in a position that violates the word order rules of the main language.
               - This can be in the form of insertional code-switching: incorporation of specific lexical elements into a matrix language such as single words or short phrases
-              - **Focus on switching adjectives and/or nouns**
+              - **Focus on switching adjectives and nouns**
                 Examples: Chinese to English,“我老是去那家 coffee shop，因为那里真的很 peaceful，而且vibe也不错。”(Chinese sentence about the son, then an English statement.)
                 Examples: English to Spanish, Original Sentence: "The student read the book in the reference room.", New Sentence:El estudiante leyó el libro en el reference room.
                 Examples: English to Spanish, Original Sentence: "I met up with my buddies at the party.", New Sentence: "I met up with my compadres at the fiesta."
@@ -38,15 +36,16 @@ DATA_TRANSLATION_PROMPT = ChatPromptTemplate.from_messages(
              
             3. Utilise Lexical Substitution
             - If a direct translation of the verb creates unnatural grammar, try changing the word choice to a similar word or switch the whole verb phrase.
-
+           
             4. Ensure your output follows these constraints:
             - Do not add any additional words to the original {hypothesis}.
-            - - Pronouns (subject/object), determiners, articles, and any other system morphemes MUST NOT appear in the Embedded Language unless the ENTIRE clause or phrase containing them is also switched into the Embedded Language.
+            - Pronouns (subject/object), determiners, articles, and any other system morphemes MUST NOT appear in the Embedded Language unless the ENTIRE clause or phrase containing them is also switched into the Embedded Language.
             - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
             - The syntax remains correct in both languages. (Observe free morpheme constraint & equivalence constraint.)
             - Make it sound natural to bilingual speakers (avoid unnatural mixing).
             - The order of words must follow the Matrix Language rules.
             - The final sentence must mean EXACTLY the same thing as the input sentence.
+            - The proportion of matrix_language should be at least `20%` of the sentence
 
             5. Output must be the generated code-switched sentence in string format
     
@@ -219,6 +218,7 @@ REFINER_PROMPT = ChatPromptTemplate.from_messages(
             Here are the comments : {summary}
             
 
+            
             Follow these guidelines:
 
             1. Language Roles:
@@ -226,12 +226,10 @@ REFINER_PROMPT = ChatPromptTemplate.from_messages(
             - The Embedded Language (secondary language) is {second_language}.
 
             2. Intrasentential Code-Switching :
-              - Switch languages within a single sentence.
-              - Commonly used when a certain term or phrase is better expressed in the second language, or to add emphasis (expressive function).
               - Within a single sentence, embed a short phrase or clause in {second_language} (e.g., for an object, an adjective, or a common expression).
               - Remember to maintain grammatical coherence; e.g., do not place a determiner in a position that violates the word order rules of the main language.
               - This can be in the form of insertional code-switching: incorporation of specific lexical elements into a matrix language such as single words or short phrases
-              - **Focus on switching adjectives and/or nouns**
+              - **Focus on switching adjectives and nouns**
                 Examples: Chinese to English,“我老是去那家 coffee shop，因为那里真的很 peaceful，而且vibe也不错。”(Chinese sentence about the son, then an English statement.)
                 Examples: English to Spanish, Original Sentence: "The student read the book in the reference room.", New Sentence:El estudiante leyó el libro en el reference room.
                 Examples: English to Spanish, Original Sentence: "I met up with my buddies at the party.", New Sentence: "I met up with my compadres at the fiesta."
@@ -239,12 +237,12 @@ REFINER_PROMPT = ChatPromptTemplate.from_messages(
                 Examples: English to Spanish, Original Sentence: "But my printer doesn’t work.", New Sentence: "Pero mi printer no funciona."
                 Examples: English to Spanish, Original Sentence: "You can’t do it because you can’t check it.", New Sentence: "No la puedes hacer because you can’t check it."
              
-            3. Must Utilise Lexical Substitution for Broken verb phrases
+            3. Utilise Lexical Substitution
             - If a direct translation of the verb creates unnatural grammar, try changing the word choice to a similar word or switch the whole verb phrase.
 
             4. Ensure your output follows these constraints:
             - Do not add any additional words to the original {hypothesis}.
-            - Object and Subject Pronouns(I, they, him, he etc.), determiners and articles MUST **NEVER** be in one language in ISOLATION.
+            - Pronouns (subject/object), determiners, articles, and any other system morphemes MUST NOT appear in the Embedded Language unless the ENTIRE clause or phrase containing them is also switched into the Embedded Language.
             - Switch must respect each language’s grammar constraints (like subject-verb-object ordering, morphological rules, etc.).
             - The syntax remains correct in both languages. (Observe free morpheme constraint & equivalence constraint.)
             - Make it sound natural to bilingual speakers (avoid unnatural mixing).
