@@ -2,7 +2,7 @@ from typing import TypedDict, Optional, Annotated
 from operator import add
 
 class TranslationResponse(TypedDict):
-    hypo: str
+    translated_sentence:str
 
 class AccuracyResponse(TypedDict):
     accuracy_score:float
@@ -33,16 +33,18 @@ class SocialCulturalResponse(TypedDict):
     summary: str
 
 class AgentRunningState(TypedDict):
+    hypothesis:str
+    translated_sentence:str
     cs_ratio: str
     first_language: str
     second_language: str
     response: str
-    data_generation_result: list[str]
-    news_generation_result: list[str]
+    data_translation_result: list[str]
 
+    accuracy_result: AccuracyResponse
     fluency_result: FluencyResponse
     naturalness_result: NaturalnessResponse
-    cs_ratio_result: CSRatioResponse
+    # cs_ratio_result: CSRatioResponse
     social_cultural_result: SocialCulturalResponse
 
     summary: str

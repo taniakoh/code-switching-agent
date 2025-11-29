@@ -8,8 +8,8 @@ from node_engine import (
     SummarizeResult,
     RunFluencyAgent,
     RunNaturalnessAgent,
-    RunCSRatioAgent,
-    RunSocialCulturalAgent,
+    # RunCSRatioAgent,
+    #RunSocialCulturalAgent,
     RunRefinerAgent,
     AcceptanceAgent,
 )
@@ -21,9 +21,9 @@ from datetime import datetime
 
 
 #agents are adapted from switchlingua
-
+code_switch_lang='zh'
 logger.add(f"logs/code_switching_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-
+config: dict = load_config(f"./config/config_{code_switch_lang}.yaml")
 MAX_REFINER_ITERATIONS = 1
 
 
@@ -51,20 +51,21 @@ class CodeSwitchingAgent:
         workflow.add_node("TranslationAdequacyAgent", RunAccuracyAgent)
         workflow.add_node("FluencyAgent", RunFluencyAgent)
         workflow.add_node("NaturalnessAgent", RunNaturalnessAgent)
-        workflow.add_node("CSRatioAgent", RunCSRatioAgent)
+        # workflow.add_node("CSRatioAgent", RunCSRatioAgent)
+        #workflow.add_node("SocialCulturalAgent", RunSocialCulturalAgent)
         workflow.add_node("SummarizeResult", SummarizeResult)
         workflow.add_node("RefinerAgent", RunRefinerAgent)
         workflow.add_node("AcceptanceAgent", AcceptanceAgent)
         # workflow.add_node("NewsGenerationAgent", RunUseToolsAgent)
-        workflow.add_edge(START, "DataGenerationAgent")
+        workflow.add_edge(START, "DataTranslationAgent")
         # workflow.add_edge(START, "NewsGenerationAgent")
         workflow.add_edge("DataTranslationAgent", "TranslationAdequacyAgent")
         workflow.add_edge("DataTranslationAgent", "FluencyAgent")
         workflow.add_edge("DataTranslationAgent", "NaturalnessAgent")
-        workflow.add_edge("DataTranslationAgent", "CSRatioAgent")
-        workflow.add_edge("DataTranslationAgent", "SocialCulturalAgent")
+        # workflow.add_edge("DataTranslationAgent", "CSRatioAgent")
+        #workflow.add_edge("DataTranslationAgent", "SocialCulturalAgent")
         workflow.add_edge(
-            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent", "CSRatioAgent", "SocialCulturalAgent"],
+            ["TranslationAdequacyAgent","FluencyAgent", "NaturalnessAgent"],
             "SummarizeResult",
         )
         workflow.add_conditional_edges("SummarizeResult", meet_criteria)
@@ -90,47 +91,38 @@ async def arun(hypo):
     await agent_instance.run()
 
 
-async def main():
-    config: dict = load_config("../config/config_augmented_hindi_eng.yaml")
+async def main(config):
+    first_lang = config["pre_execute"]["first_language"]
+    second_lang = config["pre_execute"]["second_language"]
+    cs_ratio = config["pre_execute"]["cs_ratio"]
     scenarios: list[AgentRunningState] = [
-    AgentRunningState(hypothesis=hypo)
+    AgentRunningState(hypothesis=hypo,first_language=first_lang, second_language=second_lang,cs_ratio=cs_ratio)
     for hypo in generate_hypo_list()]
 
     # make a for loop, each loop run 10 scenarios
     results_count = 0
-    for i in range(0, 8000, 40):
-        tasks = [arun(scenario) for scenario in scenarios[i : i + 40]]
+    #for i in range(0, 1, 40): #og 0, 8000, 40
+    tasks = [arun(scenario) for scenario in scenarios[10 : 15]]
 
-        # 使用 asyncio.as_completed 來逐個等待任務完成
-        try:
-            for task in asyncio.as_completed(tasks, timeout=7200):
-                result = await task
-                results_count += 1
-        except asyncio.TimeoutError:
-            logger.warning(f"⏱️ Scenario timed out after 2400 seconds: {i}")
-            send_message(f"🔍 LANG: {config['pre_execute']['character_setting']['nationality']['first_language']} Scenario timed out after 2400 seconds: {i}")
-            continue
-        finally:
-            # log the number of results finished
-            if results_count % 10 == 0:
-                logger.info(f"🔍 Number of results finished: {results_count}")
-                send_message(f"🔍 LANG: {config['pre_execute']['character_setting']['nationality']['first_language']} Number of results finished: {results_count}")
+    # 使用 asyncio.as_completed 來逐個等待任務完成
+    try:
+        for task in asyncio.as_completed(tasks, timeout=7200):
+            result = await task
+            print(result)
+            results_count += 1
+    except asyncio.TimeoutError:
+        logger.warning(f"⏱️ Scenario timed out after 2400 seconds: {i}")
+        print(f"🔍 Scenario timed out after 2400 seconds: {i}")
+    finally:
+        # log the number of results finished
+        if results_count % 10 == 0:
+            logger.info(f"🔍 Number of results finished: {results_count}")
+            print(f"🔍 Number of results finished: {results_count}")
     return results_count
-
-def send_message(message):
-    WEBHOOK = "https://open.larksuite.com/open-apis/bot/v2/hook/47b6490a-a0d3-4a24-9385-61765b43aa82"
-    params = {
-        "msg_type": "text",
-        "content": { 
-            "text": message
-        }
-    }
-    import requests
-    requests.post(WEBHOOK, json=params)
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        asyncio.run(main(config))
     except Exception as e:
         logger.error(f"🚨 Error: {e}")
     # config: dict = load_config()
