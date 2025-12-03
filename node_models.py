@@ -34,12 +34,11 @@ class SocialCulturalResponse(TypedDict):
 
 class AgentRunningState(TypedDict):
     hypothesis:str
-    translated_sentence:str
     cs_ratio: str
     first_language: str
     second_language: str
     response: str
-    data_translation_result: list[str]
+    data_translation_result: str
 
     accuracy_result: AccuracyResponse
     fluency_result: FluencyResponse

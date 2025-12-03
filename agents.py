@@ -21,10 +21,12 @@ from datetime import datetime
 
 
 #agents are adapted from switchlingua
-code_switch_lang='zh'
+code_switch_lang='vi'
 logger.add(f"logs/code_switching_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 config: dict = load_config(f"./config/config_{code_switch_lang}.yaml")
 MAX_REFINER_ITERATIONS = 1
+start=1200
+end=1240
 
 
 def meet_criteria(state: AgentRunningState):
@@ -88,6 +90,7 @@ class CodeSwitchingAgent:
 
 async def arun(hypo):
     agent_instance = CodeSwitchingAgent(hypo)
+    print(f"🔍 Running scenario: {hypo}")
     await agent_instance.run()
 
 
@@ -102,7 +105,7 @@ async def main(config):
     # make a for loop, each loop run 10 scenarios
     results_count = 0
     #for i in range(0, 1, 40): #og 0, 8000, 40
-    tasks = [arun(scenario) for scenario in scenarios[10 : 15]]
+    tasks = [arun(scenario) for scenario in scenarios[start:end]]
 
     # 使用 asyncio.as_completed 來逐個等待任務完成
     try:

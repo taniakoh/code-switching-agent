@@ -21,7 +21,8 @@ from node_models import (
     # CSRatioResponse,
     #SocialCulturalResponse,
 )
-from utils import weighting_scheme
+from read_xnli_dataset import XNLIDataLoader
+from utils import weighting_scheme,save_jsonl_to_tsv, get_premise_label
 from copy import deepcopy
 
 from typing import Dict, Any
@@ -36,6 +37,7 @@ TEMPERATURE=1
 
 ##add in function for translating the xnli dataset
 
+loader = XNLIDataLoader(lang='en', test_path='xnli.test.tsv')
 
 def RunDataTranslationAgent(state: AgentRunningState):
     DataTranslationAgent = DATA_TRANSLATION_PROMPT | ChatOpenAI(
@@ -50,7 +52,7 @@ def RunDataTranslationAgent(state: AgentRunningState):
     #             break
     #         retry -= 1
     print(response)
-    state["translated_sentence"] = response
+    state["data_translation_result"] = response
     return {"data_translation_result": response}
 
 def RunAccuracyAgent(state: AgentRunningState):
@@ -112,16 +114,30 @@ def SummarizeResult(state: AgentRunningState):
 
     return {"score": weighting_scheme(state), "summary": summary}
 
-
 def AcceptanceAgent(state: AgentRunningState):
     language = state["second_language"]
-    os.makedirs(OUTPUT_DIR, exist_ok=True) 
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    with jsonlines.open(f"{OUTPUT_DIR}/{language}.jsonl", "a") as f:
+    jsonl_file = f"{OUTPUT_DIR}/{language}.jsonl"
+    json_dataset_file = f"{OUTPUT_DIR}/{language}_dataset.json"
+    tsv_file = f"{OUTPUT_DIR}/cs_{language}_test.tsv"
+
+    # Extract hypothesis text (STRING)
+    hypo_text = state.get("hypothesis", {}).get("hypo", "")
+    translated_sentence = state["data_translation_result"]["translated_sentence"]
+
+    if os.path.exists(json_dataset_file):
+        with jsonlines.open(json_dataset_file, "r") as f:
+            existing_translations = list(f)
+    with jsonlines.open(jsonl_file, "a") as f:
         f.write(state)
-    with jsonlines.open(f"{OUTPUT_DIR}/{language}_dataset.jsonl", "a") as f:
-        f.write(state)
-    return
+
+    with jsonlines.open(json_dataset_file, "a") as f:
+        f.write(translated_sentence)
+
+    # ---------- Regenerate TSV ----------
+    save_jsonl_to_tsv(jsonl_file, tsv_file, loader)
+
 
 
 def RunRefinerAgent(state: AgentRunningState):
@@ -130,7 +146,7 @@ def RunRefinerAgent(state: AgentRunningState):
         model=MODEL, temperature=TEMPERATURE, api_key=API_KEY
     ).with_structured_output(TranslationResponse)
     response = RefinerAgent.invoke(state)
-    state["translated_sentence"] = response
+    state["data_translation_result"] = response
     print(f'refiner agent called: {response}')
     return {"refiner_result": response, "refine_count": 1}
 
