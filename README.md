@@ -1,6 +1,6 @@
 
 # Code Switching Data Translation Pipeline
-
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-orange)](https://huggingface.co/datasets/taniakoh/code-switch-xnli-test)
 This repo features a data translation pipeline adapted from SwitchLingua. The original use was intended for converting hypotheses from the XNLI dataset into intra-sential code-switched versions for NLI.
 
 ## Setup
