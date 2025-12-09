@@ -21,12 +21,15 @@ from datetime import datetime
 
 
 #agents are adapted from switchlingua
-code_switch_lang='vi'
+#change this to language code you want to test for
+code_switch_lang='zh'
 logger.add(f"logs/code_switching_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 config: dict = load_config(f"./config/config_{code_switch_lang}.yaml")
+#change this for number of refinements
 MAX_REFINER_ITERATIONS = 1
-start=1200
-end=1240
+#change this to your range of xnli rows
+start=100
+end=130
 
 
 def meet_criteria(state: AgentRunningState):

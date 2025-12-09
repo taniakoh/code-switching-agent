@@ -3,7 +3,7 @@ pre_execute:
     - "15%"
   use_tools: true
   first_language: "English"
-  second_language: "Mandarin"
+  second_language: "Vietnamese"
   output_format:
     "json"
     

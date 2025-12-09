@@ -24,7 +24,7 @@ from node_models import (
 from read_xnli_dataset import XNLIDataLoader
 from utils import weighting_scheme,save_jsonl_to_tsv, get_premise_label
 from copy import deepcopy
-
+from agents import code_switch_lang
 from typing import Dict, Any
 
 
@@ -118,9 +118,9 @@ def AcceptanceAgent(state: AgentRunningState):
     language = state["second_language"]
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    jsonl_file = f"{OUTPUT_DIR}/{language}.jsonl"
-    json_dataset_file = f"{OUTPUT_DIR}/{language}_dataset.json"
-    tsv_file = f"{OUTPUT_DIR}/cs_{language}_test.tsv"
+    jsonl_file = f"{OUTPUT_DIR}/{code_switch_lang}.jsonl"
+    json_dataset_file = f"{OUTPUT_DIR}/{code_switch_lang}_dataset.json"
+    tsv_file = f"{OUTPUT_DIR}/cs_{code_switch_lang}_test.tsv"
 
     # Extract hypothesis text (STRING)
     hypo_text = state.get("hypothesis", {}).get("hypo", "")
