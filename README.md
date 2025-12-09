@@ -3,9 +3,21 @@
   <a href="https://huggingface.co/datasets/taniakoh/code-switch-xnli-test">
     <img src="https://img.shields.io/badge/HuggingFace-SwitchLingua_text-yellow?logo=Hugging%20Face" alt="Hugging Face">
   </a>
+
+## Overview
 This repo features a data translation pipeline adapted from SwitchLingua. The original use was intended for converting hypotheses from the XNLI dataset into intra-sential code-switched versions for NLI.
 
+## Dataset Structure
+#### TSV
+```tsv
+{"sentence1": original xnli premise,
+"sentence2": generated code-switched xnli hypothesis sentence,
+"gold_label": classification label(entailment, neutral, contradiction)
+}
+```
+
 ## Setup
+
 
 
 ## Acknowledgements
