@@ -5,7 +5,7 @@
   </a>
 
 ## Overview
-This repo features a data translation pipeline adapted from SwitchLingua. The original use was intended for converting hypotheses from the XNLI dataset into intra-sential code-switched versions for NLI.
+This repo features a data translation pipeline adapted from SwitchLingua. The original use was intended for converting hypotheses from the XNLI dataset into intra-sential code-switched versions for NLI. This repo includes an example of the setup and outputs for 1000 Annotated Sentence Pairs for Intra-Sential Code-Switching Each: English-Spanish(es), English-Vietnamese(vi), English-Mandarin(zh)
 
 ## Dataset Structure
 #### TSV
