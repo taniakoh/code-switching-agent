@@ -26,10 +26,10 @@ MODEL="LLM_MODEL" eg. gpt-5-nano
 
 ### 1. Install dependencies
 
-Install all required packages using `npm` based on the dependencies listed in `requirements.txt`:
+Install all required packages using `pip` based on the dependencies listed in `requirements.txt`:
 
 ```sh
-npm install
+pip install -r 'requirements.txt
 ```
 ### 2. Create config file
 #### File Name:
