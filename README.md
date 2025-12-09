@@ -8,6 +8,7 @@ This repo features a data translation pipeline adapted from SwitchLingua. The or
 
 ## Acknowledgements
 All credits for the original Pipeline goes to:
+
 `Xie, P., Liu, X., Chan, T. W., Bie, Y., Song, Y., Wang, Y., Chen, H., & Chen, K. (2025, May 30). SwitchLingua: the first Large-Scale multilingual and Multi-Ethnic Code-Switching dataset. arXiv.org. https://arxiv.org/abs/2506.00087`
 
 All credits for the original XNLI dataset goes to:
