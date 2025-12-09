@@ -16,6 +16,12 @@ This repo features a data translation pipeline adapted from SwitchLingua. The or
 }
 ```
 
+## Environment Setup
+### Create a dotenv file
+```
+API_KEY="YOUR_API_KEY_FOR_LLM"
+MODEL="LLM_MODEL" eg. gpt-5-nano
+```
 ## Setup
 
 ### 1. Install dependencies
